@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elector
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elector
+  template:
+    metadata:
+      labels:
+        app: elector
+    spec:
+      containers:
+      - image: k8s.gcr.io/nodejs-election-client:0.1
+        imagePullPolicy: IfNotPresent
+        name: nodejs-app
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+      - image: k8s.gcr.io/leader-elector:0.5
+        imagePullPolicy: IfNotPresent
+        name: leader-elector
+        args:
+          - --election=example
+          - --http=localhost:4040
+        ports:
+        - containerPort: 4040
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
